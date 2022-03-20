@@ -1,8 +1,6 @@
-- 👋 Hi, I’m @chrisilt
-- 👀 I’m interested in politics, economics and environmental issues
-- 🌱 I’m currently learning Python
-- 💞️ I’m looking to collaborate on nothing - just learning
-- 📫 How to reach me instagram: @christianiltner
+Hello thank you for checking my profile 😎 my main interests are politics and economics 🤠 
+I'm currently learning Python 
+If you want to reach me, contact me at instagram or twitter @christianiltner
 
 <!---
 chrisilt/chrisilt is a ✨ special ✨ repository because its `README.md` (this file) appears on your GitHub profile.
