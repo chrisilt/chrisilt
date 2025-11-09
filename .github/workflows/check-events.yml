@@ -1,0 +1,66 @@
+name: Check EUGLOH Course Events
+
+on:
+  # Run every hour
+  schedule:
+    - cron: '0 * * * *'
+  # Allow manual trigger
+  workflow_dispatch:
+
+permissions:
+  contents: write
+
+jobs:
+  check-events:
+    runs-on: ubuntu-latest
+    
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+        with:
+          # Need write permissions to commit changes back
+          persist-credentials: true
+      
+      - name: Set up Python 3.11
+        uses: actions/setup-python@v5
+        with:
+          python-version: '3.11'
+          cache: 'pip'
+      
+      - name: Install dependencies
+        run: |
+          python -m pip install --upgrade pip
+          pip install -r requirements.txt
+      
+      - name: Run event checker
+        env:
+          # Default target URL for EUGLOH courses with open registrations
+          TARGET_URL: ${{ secrets.TARGET_URL || 'https://www.eugloh.eu/courses-trainings/?openRegistrations=%5Byes%5D' }}
+          # CSS selector for registration links (can be overridden via secrets)
+          REG_LINK_SELECTOR: ${{ secrets.REG_LINK_SELECTOR || 'div.buttons-wrap:nth-child(3) > div:nth-child(1) > p:nth-child(1) > a:nth-child(1)' }}
+          # Optional: customize title selector
+          TITLE_SELECTOR: ${{ secrets.TITLE_SELECTOR || 'h5.headline' }}
+          # Optional: customize date selector
+          DATE_SELECTOR: ${{ secrets.DATE_SELECTOR || 'time, .date' }}
+          # Optional: webhook URL for posting new events
+          WEBHOOK_URL: ${{ secrets.WEBHOOK_URL }}
+          # State and feed files
+          STATE_FILE: 'seen.json'
+          FEED_FILE: 'feed.xml'
+        run: python check_events.py
+      
+      - name: Commit and push changes
+        run: |
+          git config user.name "github-actions[bot]"
+          git config user.email "github-actions[bot]@users.noreply.github.com"
+          
+          # Add generated files
+          git add seen.json feed.xml
+          
+          # Only commit if there are changes
+          if git diff --staged --quiet; then
+            echo "No changes to commit"
+          else
+            git commit -m "Update course events [skip ci]"
+            git push
+          fi
