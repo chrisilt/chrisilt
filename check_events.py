@@ -8,7 +8,7 @@ and publishes them to an RSS feed and optional webhook.
 import os
 import json
 import sys
-from datetime import datetime
+from datetime import datetime, timezone
 from urllib.parse import urljoin, urlparse, urlunparse
 from xml.sax.saxutils import escape
 import requests
@@ -143,7 +143,7 @@ def post_to_webhook(event):
             'title': event['title'],
             'link': event['link'],
             'date': event['date'],
-            'timestamp': datetime.utcnow().isoformat() + 'Z'
+            'timestamp': datetime.now(timezone.utc).isoformat()
         }
         
         response = requests.post(
@@ -166,7 +166,7 @@ def generate_rss_item(event):
     date_str = escape(event['date'])
     
     # Use current time as pubDate in RFC 822 format
-    pub_date = datetime.utcnow().strftime('%a, %d %b %Y %H:%M:%S +0000')
+    pub_date = datetime.now(timezone.utc).strftime('%a, %d %b %Y %H:%M:%S +0000')
     
     # Create description with date info
     description = escape(f"Registration Date: {date_str}")
@@ -210,7 +210,7 @@ def update_rss_feed(new_events):
     feed_title = escape("EUGLOH Course Events")
     feed_link = escape(TARGET_URL)
     feed_description = escape("New course registration opportunities from EUGLOH")
-    build_date = datetime.utcnow().strftime('%a, %d %b %Y %H:%M:%S +0000')
+    build_date = datetime.now(timezone.utc).strftime('%a, %d %b %Y %H:%M:%S +0000')
     
     feed_content = f"""<?xml version="1.0" encoding="UTF-8"?>
 <rss version="2.0">
